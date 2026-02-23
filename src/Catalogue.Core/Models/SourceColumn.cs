@@ -5,7 +5,7 @@ public class SourceColumn
     public int ColumnId { get; set; }
     public int TableId { get; set; }
     public string ColumnName { get; set; } = string.Empty;
-    /// <summary>'R' = Relational, 'D' = Document</summary>
+    /// <summary>'R' = Relational, 'D' = Document, 'B' = Both</summary>
     public char PersistenceType { get; set; } = 'R';
     public bool IsInDaoAnalysis { get; set; }
     public bool IsAddedByApi { get; set; }

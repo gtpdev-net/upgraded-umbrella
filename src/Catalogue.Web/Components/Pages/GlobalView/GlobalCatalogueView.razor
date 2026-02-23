@@ -32,6 +32,7 @@
                     <option value="">Any Type</option>
                     <option value="R">Relational (R)</option>
                     <option value="D">Document (D)</option>
+                    <option value="B">Both (B)</option>
                 </select>
             </div>
         </div>
@@ -62,6 +63,7 @@
         <button class="btn btn-sm btn-outline-primary" @onclick='() => BulkSet("isAddedByApi", true)'>Set API ✓</button>
         <button class="btn btn-sm btn-outline-success" @onclick='() => BulkSet("isSelectedForLoad", true)'>Set For Load ✓</button>
         <button class="btn btn-sm btn-outline-warning" @onclick="SetTypeD">Set Type D</button>
+        <button class="btn btn-sm btn-outline-info" @onclick="SetTypeB">Set Type B</button>
         <button class="btn btn-sm btn-outline-secondary" @onclick="() => _selected.Clear()">Deselect All</button>
     </div>
 }
@@ -111,6 +113,7 @@ else
                                     @onchange="async e => await UpdateType(col, string.IsNullOrEmpty(e.Value?.ToString()) ? 'R' : e.Value!.ToString()![0])">
                                 <option value="R">R</option>
                                 <option value="D">D</option>
+                                <option value="B">B</option>
                             </select>
                         </td>
                         <td><input type="checkbox" checked="@col.IsInDaoAnalysis"
@@ -285,6 +288,7 @@ else
     }
 
     private Task SetTypeD() => BulkSet("persistenceType", (object)'D');
+    private Task SetTypeB() => BulkSet("persistenceType", (object)'B');
 
     private void ExportCsv()
     {

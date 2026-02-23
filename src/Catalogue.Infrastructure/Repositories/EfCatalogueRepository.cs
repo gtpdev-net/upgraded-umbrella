@@ -132,9 +132,9 @@ public class EfCatalogueRepository : ICatalogueRepository
             IsActive = t.IsActive,
             TotalColumnCount = t.Columns.Count(c => c.IsActive),
             InScopeRelationalCount = t.Columns.Count(c => c.IsActive
-                && (c.IsInDaoAnalysis || c.IsAddedByApi) && c.PersistenceType == 'R'),
+                && (c.IsInDaoAnalysis || c.IsAddedByApi) && (c.PersistenceType == 'R' || c.PersistenceType == 'B')),
             InScopeDocumentCount = t.Columns.Count(c => c.IsActive
-                && (c.IsInDaoAnalysis || c.IsAddedByApi) && c.PersistenceType == 'D'),
+                && (c.IsInDaoAnalysis || c.IsAddedByApi) && (c.PersistenceType == 'D' || c.PersistenceType == 'B')),
             SelectedForLoadCount = t.Columns.Count(c => c.IsActive && c.IsSelectedForLoad),
             UnreviewedCount = t.Columns.Count(c => c.IsActive
                 && !c.IsInDaoAnalysis && !c.IsAddedByApi && !c.IsSelectedForLoad)
@@ -189,9 +189,9 @@ public class EfCatalogueRepository : ICatalogueRepository
         q = filter switch
         {
             ColumnFilter.InScopeRelational =>
-                q.Where(c => (c.IsInDaoAnalysis || c.IsAddedByApi) && c.PersistenceType == 'R'),
+                q.Where(c => (c.IsInDaoAnalysis || c.IsAddedByApi) && (c.PersistenceType == 'R' || c.PersistenceType == 'B')),
             ColumnFilter.InScopeDocument =>
-                q.Where(c => (c.IsInDaoAnalysis || c.IsAddedByApi) && c.PersistenceType == 'D'),
+                q.Where(c => (c.IsInDaoAnalysis || c.IsAddedByApi) && (c.PersistenceType == 'D' || c.PersistenceType == 'B')),
             ColumnFilter.SelectedForLoad =>
                 q.Where(c => c.IsSelectedForLoad),
             _ => q

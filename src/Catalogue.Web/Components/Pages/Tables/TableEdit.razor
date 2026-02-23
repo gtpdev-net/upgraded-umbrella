@@ -80,6 +80,7 @@
                                         @onchange="e => col.PersistenceType = string.IsNullOrEmpty(e.Value?.ToString()) ? 'R' : e.Value!.ToString()![0]">
                                     <option value="R">R</option>
                                     <option value="D">D</option>
+                                    <option value="B">B</option>
                                 </select>
                             </td>
                             <td><input type="checkbox" @bind="col.IsInDaoAnalysis" /></td>

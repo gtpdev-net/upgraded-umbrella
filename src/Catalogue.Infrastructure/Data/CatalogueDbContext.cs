@@ -1,4 +1,3 @@
-using Catalogue.Core.Interfaces;
 using Catalogue.Core.Models;
 using Catalogue.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -7,14 +6,10 @@ namespace Catalogue.Infrastructure.Data;
 
 public class CatalogueDbContext : DbContext
 {
-    private readonly ICurrentUserService _currentUserService;
-
     public CatalogueDbContext(
-        DbContextOptions<CatalogueDbContext> options,
-        ICurrentUserService currentUserService)
+        DbContextOptions<CatalogueDbContext> options)
         : base(options)
     {
-        _currentUserService = currentUserService;
     }
 
     public DbSet<Source> Sources => Set<Source>();
@@ -116,7 +111,7 @@ public class CatalogueDbContext : DbContext
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
-        var user = _currentUserService.CurrentUser ?? "system";
+        var user = "system";
 
         foreach (var entry in ChangeTracker.Entries())
         {

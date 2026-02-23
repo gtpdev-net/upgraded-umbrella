@@ -1,36 +1,12 @@
 // tests/Catalogue.Tests/Integration/SmokeTests.cs
 // Integration smoke tests using WebApplicationFactory.
-// These tests verify that the app starts up and protected routes reject
-// unauthenticated requests. The real Entra ID OIDC handler is replaced with a
-// stub that returns 401 Unauthorized immediately without hitting any network.
+// These tests verify that the app starts up and routes respond without server errors.
 
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Logging;
-using System.Security.Claims;
-using System.Text.Encodings.Web;
+using Microsoft.Extensions.DependencyInjection;
 using FluentAssertions;
 
 namespace Catalogue.Tests.Integration;
-
-// ── Stub authentication handler ─────────────────────────────────────────────
-/// <summary>
-/// A test authentication handler that always returns no result (anonymous),
-/// so protected routes will trigger the 401/challenge response without
-/// trying to contact any real identity provider.
-/// </summary>
-public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
-{
-    public TestAuthHandler(
-        IOptionsMonitor<AuthenticationSchemeOptions> options,
-        ILoggerFactory logger,
-        UrlEncoder encoder)
-        : base(options, logger, encoder) { }
-
-    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
-        => Task.FromResult(AuthenticateResult.NoResult());
-}
 
 // ── Custom WebApplicationFactory ─────────────────────────────────────────────
 public class CatalogueWebAppFactory : WebApplicationFactory<Program>
@@ -43,11 +19,6 @@ public class CatalogueWebAppFactory : WebApplicationFactory<Program>
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["AzureAd:TenantId"]              = "00000000-0000-0000-0000-000000000001",
-                ["AzureAd:ClientId"]              = "00000000-0000-0000-0000-000000000002",
-                ["AzureAd:Domain"]                = "test.onmicrosoft.com",
-                ["AzureAd:Instance"]              = "https://login.microsoftonline.com/",
-                ["AzureAd:CallbackPath"]          = "/signin-oidc",
                 ["ConnectionStrings:CatalogueDb"] = "DataSource=testcatalogue;Mode=Memory;Cache=Shared",
                 ["KeyVaultName"]                  = "",
             });
@@ -63,17 +34,6 @@ public class CatalogueWebAppFactory : WebApplicationFactory<Program>
 
             services.AddDbContext<Catalogue.Infrastructure.Data.CatalogueDbContext>(opts =>
                 opts.UseSqlite("DataSource=testcatalogue;Mode=Memory;Cache=Shared"));
-
-            // Replace Entra ID OIDC with stub auth handler to avoid network calls
-            services.AddAuthentication("TestScheme")
-                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("TestScheme", _ => { });
-
-            // Override the default challenge scheme so the stub handler is used
-            services.Configure<Microsoft.AspNetCore.Authentication.AuthenticationOptions>(opts =>
-            {
-                opts.DefaultScheme          = "TestScheme";
-                opts.DefaultChallengeScheme = "TestScheme";
-            });
         });
     }
 }
@@ -97,25 +57,11 @@ public class SmokeTests : IClassFixture<CatalogueWebAppFactory>
     [InlineData("/catalogue")]
     [InlineData("/import/dacpac")]
     [InlineData("/import/excel")]
-    public async Task Protected_routes_do_not_return_server_error(string path)
+    public async Task Routes_do_not_return_server_error(string path)
     {
         var response = await _client.GetAsync(path);
 
-        // Should be 401 (or any non-5xx) — not a server error
         ((int)response.StatusCode).Should().BeLessThan(500,
             because: $"route {path} should not cause a server error");
-    }
-
-    [Theory]
-    [InlineData("/")]
-    [InlineData("/servers")]
-    [InlineData("/catalogue")]
-    public async Task Unauthenticated_requests_are_rejected(string path)
-    {
-        var response = await _client.GetAsync(path);
-
-        // Without auth, the fallback policy must reject the request
-        ((int)response.StatusCode).Should().BeGreaterThanOrEqualTo(400,
-            because: $"route {path} requires authentication");
     }
 }

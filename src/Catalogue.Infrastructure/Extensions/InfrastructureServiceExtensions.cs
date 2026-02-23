@@ -2,7 +2,6 @@ using Catalogue.Core.Interfaces;
 using Catalogue.Infrastructure.Data;
 using Catalogue.Infrastructure.Import;
 using Catalogue.Infrastructure.Repositories;
-using Catalogue.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,8 +19,6 @@ public static class InfrastructureServiceExtensions
                 configuration.GetConnectionString("CatalogueDb"),
                 sql => sql.MigrationsAssembly(typeof(CatalogueDbContext).Assembly.FullName)));
 
-        services.AddHttpContextAccessor();
-        services.AddScoped<ICurrentUserService, HttpContextCurrentUserService>();
         services.AddScoped<ICatalogueRepository, EfCatalogueRepository>();
 
         // Import services

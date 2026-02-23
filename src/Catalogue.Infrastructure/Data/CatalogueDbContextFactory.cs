@@ -1,4 +1,3 @@
-using Catalogue.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -14,11 +13,6 @@ public class CatalogueDbContextFactory : IDesignTimeDbContextFactory<CatalogueDb
             "Server=localhost;Database=CatalogueDb;Trusted_Connection=True;",
             sql => sql.MigrationsAssembly(typeof(CatalogueDbContext).Assembly.FullName));
 
-        return new CatalogueDbContext(optionsBuilder.Options, new DesignTimeUserService());
-    }
-
-    private sealed class DesignTimeUserService : ICurrentUserService
-    {
-        public string? CurrentUser => "design-time";
+        return new CatalogueDbContext(optionsBuilder.Options);
     }
 }

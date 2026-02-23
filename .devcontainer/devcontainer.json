@@ -32,8 +32,7 @@
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
 				"ms-dotnettools.csharp",
-				"ms-mssql.mssql",
-				"ms-azuretools.vscode-containers"
+				"ms-mssql.mssql"
 			]
 		}
 	},
@@ -54,24 +53,19 @@
 			"version": "latest",
 			"bicepVersion": "latest"
 		},
-		"ghcr.io/devcontainers/features/common-utils:2": {
-			"installZsh": true,
-			"configureZshAsDefaultShell": true,
-			"installOhMyZsh": true,
-			"installOhMyZshConfig": true,
-			"upgradePackages": true,
-			"installSsl": true,
-			"username": "vscode",
-			"userUid": "automatic",
-			"userGid": "automatic"
+		"ghcr.io/devcontainers/features/dotnet:2": {
+			"version": "8.0"
 		},
-		"ghcr.io/azure/azure-dev/azd:0": {
-			"version": "stable"
-		},
-		"ghcr.io/devcontainers-extra/features/powershell:1": {
+		"ghcr.io/devcontainers/features/git:1": {
+			"ppa": true,
 			"version": "latest"
 		},
-		"ghcr.io/devcontainers-extra/features/git-lfs:1": {
+		"ghcr.io/devcontainers/features/git-lfs:1": {
+			"autoPull": true,
+			"installDirectlyFromGitHubRelease": true,
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/powershell:2": {
 			"version": "latest"
 		}
 	}
