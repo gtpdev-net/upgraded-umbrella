@@ -1,0 +1,97 @@
+name: Build, Test & Deploy
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  AZURE_WEBAPP_NAME: 'REPLACE_WEBAPP_NAME'          # Set in repo secrets or vars
+  AZURE_WEBAPP_RESOURCE_GROUP: 'REPLACE_RG_NAME'
+  AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+jobs:
+  # ── Build & Test ────────────────────────────────────────────────────────────
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore Catalogue.sln
+
+      - name: Build solution
+        run: dotnet build Catalogue.sln --no-restore --configuration Release
+
+      - name: Run tests
+        run: dotnet test Catalogue.sln --no-build --configuration Release --verbosity normal
+
+      - name: Publish web app
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: dotnet publish src/Catalogue.Web/Catalogue.Web.csproj \
+               --configuration Release \
+               --no-build \
+               --output ./publish
+
+      - name: Upload publish artefact
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: webapp
+          path: ./publish
+
+  # ── Deploy (main branch only) ───────────────────────────────────────────────
+  deploy:
+    name: Deploy to Azure
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net
+
+    steps:
+      - name: Checkout (for migrations)
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Download publish artefact
+        uses: actions/download-artifact@v4
+        with:
+          name: webapp
+          path: ./publish
+
+      - name: Deploy to App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: ./publish
+
+      - name: Run EF migrations
+        env:
+          ConnectionStrings__CatalogueDb: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
+        run: |
+          dotnet tool install --global dotnet-ef --version 8.*
+          dotnet ef database update \
+            --project src/Catalogue.Infrastructure/Catalogue.Infrastructure.csproj \
+            --startup-project src/Catalogue.Web/Catalogue.Web.csproj \
+            --configuration Release

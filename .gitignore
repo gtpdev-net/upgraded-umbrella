@@ -1,0 +1,35 @@
+## .NET
+obj/
+bin/
+*.user
+*.suo
+.vs/
+.vscode/
+
+## NuGet
+*.nupkg
+**/packages/
+
+## Publish output
+**/publish/
+**/PublishProfiles/
+
+## EF migrations bundles
+efbundle
+efbundle.exe
+migrations-bundle.exe
+
+## Test artefacts (DACPAC and Excel fixtures kept out of repo)
+*.dacpac
+*.xlsx
+
+## ASP.NET Core user secrets
+**/appsettings.Development.json
+
+## Logs
+*.log
+logs/
+
+## OS artefacts
+.DS_Store
+Thumbs.db
