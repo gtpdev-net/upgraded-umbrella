@@ -74,6 +74,7 @@ public class ImportPreviewRow
     public bool IsInDaoAnalysis { get; set; }
     public bool IsAddedByApi { get; set; }
     public bool IsSelectedForLoad { get; set; }
+    public long? NumberOfRecords { get; set; }
     public string? Warning { get; set; }
 }
 

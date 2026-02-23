@@ -91,6 +91,11 @@ public class CatalogueImportService
                 }
             }
 
+            // Apply NumberOfRecords → EstimatedRowCount (take the first non-null value in the group)
+            var recordCount = grp.Select(r => r.NumberOfRecords).FirstOrDefault(v => v.HasValue);
+            if (!dryRun && recordCount.HasValue)
+                table.EstimatedRowCount = recordCount.Value;
+
             if (!dryRun) await _db.SaveChangesAsync();
 
             var existingColNames = (table.Columns ?? [])
