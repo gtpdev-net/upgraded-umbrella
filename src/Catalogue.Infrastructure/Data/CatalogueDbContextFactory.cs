@@ -10,7 +10,7 @@ public class CatalogueDbContextFactory : IDesignTimeDbContextFactory<CatalogueDb
     {
         var optionsBuilder = new DbContextOptionsBuilder<CatalogueDbContext>();
         optionsBuilder.UseSqlServer(
-            "Server=localhost;Database=CatalogueDb;Trusted_Connection=True;",
+            "Server=localhost;Database=CatalogueDb;Trusted_Connection=True;TrustServerCertificate=True;",
             sql => sql.MigrationsAssembly(typeof(CatalogueDbContext).Assembly.FullName));
 
         return new CatalogueDbContext(optionsBuilder.Options);
