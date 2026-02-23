@@ -79,9 +79,9 @@
 }
 else
 {
-    <div class="table-responsive">
+    <div style="max-height: 65vh; overflow-y: auto;">
         <table class="table table-hover table-sm align-middle">
-            <thead class="table-light">
+            <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
                 <tr>
                     <th><input type="checkbox" @onchange="ToggleAll" /></th>
                     <th @onclick='() => Sort("server")' style="cursor:pointer">Server</th>
@@ -129,11 +129,11 @@ else
         </table>
     </div>
 
-    <!-- Pagination -->
-    @if (TotalPages > 1)
-    {
-        <nav>
-            <ul class="pagination pagination-sm justify-content-end">
+    <!-- Pagination (always visible) -->
+    <div class="d-flex justify-content-between align-items-center mt-2">
+        <span class="text-muted small">Page @_page of @(TotalPages == 0 ? 1 : TotalPages)</span>
+        <nav aria-label="Table pagination">
+            <ul class="pagination pagination-sm mb-0">
                 <li class="page-item @(_page == 1 ? "disabled" : "")">
                     <button class="page-link" @onclick="() => _page--">&laquo;</button>
                 </li>
@@ -149,7 +149,7 @@ else
                 </li>
             </ul>
         </nav>
-    }
+    </div>
 }
 
 <ConfirmDialog @ref="_confirmDialog" Title="Bulk Update" ConfirmText="Apply" />
